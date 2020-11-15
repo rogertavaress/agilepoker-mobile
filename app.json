@@ -1,0 +1,12 @@
+{
+  "name": "agilepoker",
+  "displayName": "agilepoker",
+  "expo": {
+    "name": "agilepoker",
+    "slug": "agilepoker",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
