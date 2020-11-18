@@ -1,15 +1,23 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 interface MeetContextData {
-  meet: any;
+  term: boolean;
+  confirmTerms: () => void;
 }
 
 const MeetContext = createContext<MeetContextData>({} as MeetContextData);
 
 export const MeetProvider: React.FC = ({ children }) => {
-  const [meet, setMeet] = useState('meet');
+  const [term, setTerm] = useState(false);
+
+  const confirmTerms = useCallback(() => {
+    setTerm(true);
+  }, []);
+
   return (
-    <MeetContext.Provider value={{ meet }}>{children}</MeetContext.Provider>
+    <MeetContext.Provider value={{ term, confirmTerms }}>
+      {children}
+    </MeetContext.Provider>
   );
 };
 

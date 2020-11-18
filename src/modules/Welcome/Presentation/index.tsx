@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Animated, Platform } from 'react-native';
 
+import { useNavigation } from '@react-navigation/native';
 import {
   Container,
   Background,
@@ -20,6 +21,7 @@ const Presentation: React.FC = () => {
   const [name, setName] = useState<string>('');
   const [cod, setCod] = useState<string>('');
   const [cardMovimentation] = useState(new Animated.Value(350));
+  const { navigate } = useNavigation();
 
   useEffect(() => {
     Animated.timing(cardMovimentation, {
@@ -45,9 +47,11 @@ const Presentation: React.FC = () => {
         toValue: 350,
         duration: 500,
         useNativeDriver: true,
-      }).start();
+      }).start(() => {
+        navigate('Term');
+      });
     }
-  }, [cardMovimentation, name, cod]);
+  }, [cardMovimentation, name, cod, navigate]);
 
   return (
     <Background source={BackgroundImg}>
