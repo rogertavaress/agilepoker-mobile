@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { useMeet } from '../../../hooks/meet';
 
@@ -15,7 +16,8 @@ import {
 } from './styles';
 
 const Term: React.FC = () => {
-  const { confirmTerms } = useMeet();
+  const { confirmTerms, term } = useMeet();
+  const { reset } = useNavigation();
 
   const [data, setData] = useState([
     {
@@ -58,6 +60,15 @@ const Term: React.FC = () => {
   const handleConfirm = useCallback(() => {
     confirmTerms();
   }, [confirmTerms]);
+
+  useEffect(() => {
+    if (term) {
+      reset({
+        index: 0,
+        routes: [{ name: 'Admin' }],
+      });
+    }
+  }, [term]);
 
   return (
     <Container>
