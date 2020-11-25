@@ -1,6 +1,9 @@
-import { RectButton } from 'react-native-gesture-handler';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import styled from 'styled-components/native';
+
+interface CardTableColumnProps {
+  flex?: number;
+}
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -47,7 +50,7 @@ export const SharedViewCodeText = styled.Text`
   font-weight: bold;
 `;
 
-export const SharedViewControl = styled.View`
+export const CardFooter = styled.View`
   flex-direction: row;
   margin-top: 15px;
 `;
@@ -71,16 +74,16 @@ export const CardTableHeader = styled.View`
   flex-direction: row;
 `;
 
-export const CardTableNameColumn = styled.View`
-  flex: 3;
-`;
-
-export const CardTableScoreColumn = styled.View`
-  flex: 1;
+export const CardTableColumn = styled.View<CardTableColumnProps>`
+  flex: ${({ flex }) => flex ?? 1};
+  justify-content: center;
+  align-items: center;
 `;
 
 export const CardTableHeaderTitle = styled.Text`
   color: white;
+  text-align: left;
+  width: 100%;
 `;
 
 export const CardTableSection = styled.View`
@@ -110,15 +113,22 @@ export const CardTableSectionName = styled.View`
   width: 100%;
 `;
 
-export const CardTableSectionNameText = styled.Text`
+export const CardTableSectionText = styled.Text`
   color: white;
   font-weight: bold;
   width: 100%;
 `;
 
-export const CardTableSectionNameCategory = styled.Text`
+export const CardTableSectionDescription = styled.Text`
   color: white;
   width: 100%;
+`;
+
+export const CardTableSectionAttention = styled.View`
+  background-color: red;
+  width: 25px;
+  height: 25px;
+  border-radius: 12.5px;
 `;
 
 export const CardTableLine = styled.View`

@@ -4,14 +4,20 @@ import { RectButtonProperties } from 'react-native-gesture-handler';
 import { Container, ButtonComponentText } from './styles';
 
 interface IButton extends RectButtonProperties {
-  text: string;
+  text?: string;
   disabled?: boolean;
 }
 
 const ButtonAlternative: React.FC<IButton> = ({ text, ...rest }) => {
   return (
     <Container {...rest}>
-      <ButtonComponentText>{text}</ButtonComponentText>
+      {text ? (
+        <>
+          <ButtonComponentText>{text}</ButtonComponentText>
+        </>
+      ) : (
+        <>{rest.children}</>
+      )}
     </Container>
   );
 };

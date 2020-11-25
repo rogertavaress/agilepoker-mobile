@@ -1,5 +1,7 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
+import { AntDesign, Entypo } from '@expo/vector-icons';
+
 import ButtonAlternative from '../../../components/ButtonAlternative';
 
 import {
@@ -10,20 +12,20 @@ import {
   SharedViewDescription,
   SharedViewCode,
   SharedViewCodeText,
-  SharedViewControl,
+  CardFooter,
   Space,
   CardTitle,
   CardTable,
   CardTableHeader,
-  CardTableNameColumn,
-  CardTableScoreColumn,
   CardTableHeaderTitle,
   CardTableSection,
+  CardTableColumn,
   CardTableSectionScore,
   CardTableSectionScoreText,
   CardTableSectionName,
-  CardTableSectionNameText,
-  CardTableSectionNameCategory,
+  CardTableSectionText,
+  CardTableSectionDescription,
+  CardTableSectionAttention,
   CardTableLine,
 } from './styles';
 
@@ -41,76 +43,103 @@ const Admin: React.FC = () => {
         <SharedViewCode>
           <SharedViewCodeText>1234</SharedViewCodeText>
         </SharedViewCode>
-        <SharedViewControl>
+        <CardFooter>
           <ButtonAlternative text="Compartilhar" />
           <Space />
           <ButtonAlternative text="Copiar" />
-        </SharedViewControl>
+        </CardFooter>
       </Card>
       <Card>
         <CardTitle>Pontuação por História</CardTitle>
         <CardTable>
           <CardTableHeader>
-            <CardTableNameColumn>
+            <CardTableColumn flex={2}>
               <CardTableHeaderTitle>História</CardTableHeaderTitle>
-            </CardTableNameColumn>
-            <CardTableScoreColumn>
+            </CardTableColumn>
+            <CardTableColumn flex={1}>
               <CardTableHeaderTitle>Pontuação</CardTableHeaderTitle>
-            </CardTableScoreColumn>
+            </CardTableColumn>
+            <CardTableColumn flex={0.8}>
+              <CardTableHeaderTitle>Atenção</CardTableHeaderTitle>
+            </CardTableColumn>
           </CardTableHeader>
           <CardTableSection>
             <CardTableLine>
-              <CardTableNameColumn>
+              <CardTableColumn flex={2}>
                 <CardTableSectionName>
-                  <CardTableSectionNameText>
-                    Criar um botão
-                  </CardTableSectionNameText>
-                  <CardTableSectionNameCategory>
-                    Bug
-                  </CardTableSectionNameCategory>
+                  <CardTableSectionText>Criar um botão</CardTableSectionText>
+                  <CardTableSectionDescription>Bug</CardTableSectionDescription>
                 </CardTableSectionName>
-              </CardTableNameColumn>
-              <CardTableScoreColumn>
+              </CardTableColumn>
+              <CardTableColumn flex={1}>
                 <CardTableSectionScore>
                   <CardTableSectionScoreText>5</CardTableSectionScoreText>
                 </CardTableSectionScore>
-              </CardTableScoreColumn>
-            </CardTableLine>
-            <CardTableLine>
-              <CardTableNameColumn>
-                <CardTableSectionName>
-                  <CardTableSectionNameText>
-                    Criar um botão
-                  </CardTableSectionNameText>
-                  <CardTableSectionNameCategory>
-                    Bug
-                  </CardTableSectionNameCategory>
-                </CardTableSectionName>
-              </CardTableNameColumn>
-              <CardTableScoreColumn>
-                <CardTableSectionScore>
-                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                </CardTableSectionScore>
-              </CardTableScoreColumn>
-            </CardTableLine>
-            <CardTableLine>
-              <CardTableNameColumn>
-                <CardTableSectionName>
-                  <CardTableSectionNameText>
-                    Criar um botão
-                  </CardTableSectionNameText>
-                  <CardTableSectionNameCategory>
-                    Bug
-                  </CardTableSectionNameCategory>
-                </CardTableSectionName>
-              </CardTableNameColumn>
-              <CardTableScoreColumn>
-                <CardTableSectionScore>
-                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                </CardTableSectionScore>
-              </CardTableScoreColumn>
+              </CardTableColumn>
+              <CardTableColumn flex={0.8}>
+                <CardTableSectionAttention />
+              </CardTableColumn>
             </CardTableLine>
           </CardTableSection>
+        </CardTable>
+      </Card>
+      <Card>
+        <CardTitle>Rodada atual</CardTitle>
+        <CardTable>
+          <CardTableHeader>
+            <CardTableColumn flex={3}>
+              <CardTableHeaderTitle>Participante</CardTableHeaderTitle>
+            </CardTableColumn>
+            <CardTableColumn flex={1}>
+              <CardTableHeaderTitle>Pontuação</CardTableHeaderTitle>
+            </CardTableColumn>
+          </CardTableHeader>
+          <CardTableSection>
+            <CardTableLine>
+              <CardTableColumn flex={3}>
+                <CardTableSectionText>Anderson</CardTableSectionText>
+              </CardTableColumn>
+              <CardTableColumn flex={1}>
+                <CardTableSectionScore>
+                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
+                </CardTableSectionScore>
+              </CardTableColumn>
+            </CardTableLine>
+            <CardTableLine>
+              <CardTableColumn flex={3}>
+                <CardTableSectionText>Lucas</CardTableSectionText>
+              </CardTableColumn>
+              <CardTableColumn flex={1}>
+                <CardTableSectionScore>
+                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
+                </CardTableSectionScore>
+              </CardTableColumn>
+            </CardTableLine>
+            <CardTableLine>
+              <CardTableColumn flex={3}>
+                <CardTableSectionText>João Paulo</CardTableSectionText>
+              </CardTableColumn>
+              <CardTableColumn flex={1}>
+                <CardTableSectionScore>
+                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
+                </CardTableSectionScore>
+              </CardTableColumn>
+            </CardTableLine>
+          </CardTableSection>
+          <CardFooter>
+            <ButtonAlternative>
+              <AntDesign name="stepbackward" size={24} color="white" />
+            </ButtonAlternative>
+            <Space />
+            <ButtonAlternative>
+              <AntDesign name="stepforward" size={24} color="white" />
+            </ButtonAlternative>
+            <Space />
+            <ButtonAlternative>
+              {/* <Entypo name="controller-stop" size={24} color="white" /> */}
+              <AntDesign name="caretright" size={24} color="white" />
+            </ButtonAlternative>
+          </CardFooter>
         </CardTable>
       </Card>
     </Container>
