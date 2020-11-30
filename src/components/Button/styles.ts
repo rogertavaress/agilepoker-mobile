@@ -10,8 +10,8 @@ export const Container = styled(RectButton)<ButtonProps>`
   align-items: center;
   background-color: white;
   border-radius: 10px;
-  flex: 1;
   height: 45px;
+  padding: 10px 20px;
 
   ${({ disabled }) =>
     disabled &&

@@ -21,6 +21,7 @@ export const ButtonGroup = styled.View`
   width: 100%;
   flex-direction: row;
   margin-top: 20px;
+  justify-content: flex-end;
 `;
 
 export const ButtonGroupSpace = styled.View`

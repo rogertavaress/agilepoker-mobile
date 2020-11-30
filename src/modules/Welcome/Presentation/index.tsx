@@ -1,25 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Animated, Platform } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import {
-  Container,
-  Background,
-  Content,
-  Logo,
-  Title,
-  ButtonGroup,
-  ButtonGroupSpace,
-} from './styles';
+import { Container, Background, Content, Logo } from './styles';
 
 import BackgroundImg from '../../../assets/images/background.png';
 import LogoImg from '../../../assets/images/logo.png';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
+import Main from './Main';
+import Create from './Create';
+import Run from './Run';
+
+export interface PresentationScreenProps {
+  goTo?: (key: 'create' | 'run') => void;
+  handleCreateOrRun?: (type: 'create' | 'run') => void;
+  handleBack?: () => void;
+}
 
 const Presentation: React.FC = () => {
-  const [name, setName] = useState<string>('');
-  const [cod, setCod] = useState<string>('');
+  const [selected, setSelected] = useState<'main' | 'create' | 'run'>('main');
   const [cardMovimentation] = useState(new Animated.Value(350));
   const { navigate } = useNavigation();
 
@@ -29,29 +27,68 @@ const Presentation: React.FC = () => {
       duration: 500,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [cardMovimentation]);
 
-  const handleRun = useCallback(() => {
-    if (name.length !== 0) {
+  const handleBack = useCallback(() => {
+    Animated.timing(cardMovimentation, {
+      toValue: 350,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setSelected('main');
       Animated.timing(cardMovimentation, {
-        toValue: 350,
+        toValue: 0,
         duration: 500,
         useNativeDriver: true,
       }).start();
-    }
-  }, [cardMovimentation, name]);
+    });
+  }, [cardMovimentation]);
 
-  const handleCreate = useCallback(() => {
-    if (name.length !== 0 || cod.length !== 0) {
+  const goTo = useCallback(
+    (key: 'create' | 'run') => {
       Animated.timing(cardMovimentation, {
         toValue: 350,
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        navigate('Term');
+        setSelected(key);
+        Animated.timing(cardMovimentation, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
       });
-    }
-  }, [cardMovimentation, name, cod, navigate]);
+    },
+    [cardMovimentation],
+  );
+
+  const handleCreateOrRun = useCallback(() => {
+    Animated.timing(cardMovimentation, {
+      toValue: 350,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      navigate('Term');
+    });
+  }, [cardMovimentation, navigate]);
+
+  const components = useMemo(
+    () => ({
+      main: <Main goTo={goTo} />,
+
+      create: (
+        <Create handleBack={handleBack} handleCreateOrRun={handleCreateOrRun} />
+      ),
+      run: (
+        <Run handleBack={handleBack} handleCreateOrRun={handleCreateOrRun} />
+      ),
+    }),
+    [goTo, handleBack, handleCreateOrRun],
+  );
+
+  useEffect(() => {
+    components[selected];
+  }, [components, selected]);
 
   return (
     <Background source={BackgroundImg}>
@@ -62,31 +99,7 @@ const Presentation: React.FC = () => {
             transform: [{ translateY: cardMovimentation }],
           }}
         >
-          <Title>Nome:</Title>
-          <Input
-            onChangeText={(value: string) => setName(value ?? '')}
-            keyboardAppearance="dark"
-            textContentType="name"
-          />
-          <Title>Código:</Title>
-          <Input
-            onChangeText={(value: string) => setCod(value ?? '')}
-            keyboardAppearance="dark"
-            keyboardType="numeric"
-          />
-          <ButtonGroup>
-            <Button
-              text="Criar"
-              onPress={() => handleCreate()}
-              disabled={name.length === 0}
-            />
-            <ButtonGroupSpace />
-            <Button
-              text="Entrar"
-              onPress={() => handleRun()}
-              disabled={name.length === 0 || cod.length === 0}
-            />
-          </ButtonGroup>
+          {components[selected]}
         </Content>
       </Container>
     </Background>

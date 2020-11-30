@@ -12,7 +12,7 @@ const App = createStackNavigator();
 const Routes: React.FC = () => {
   return (
     <App.Navigator
-      initialRouteName="Admin"
+      initialRouteName="Presentation"
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: 'gray' },

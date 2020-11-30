@@ -6,8 +6,8 @@ export const Container = styled(RectButton)`
   align-items: center;
   background-color: #911ada;
   border-radius: 10px;
-  flex: 1;
   height: 45px;
+  padding: 10px 20px;
 
   ${({ enabled }) =>
     enabled &&
