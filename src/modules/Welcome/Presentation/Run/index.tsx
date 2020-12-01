@@ -34,7 +34,10 @@ const Run: React.FC<PresentationScreenProps> = ({
         <Button
           text="Entrar"
           onPress={
-            () => canCreate && handleCreateOrRun && handleCreateOrRun('create')
+            () =>
+              canCreate &&
+              handleCreateOrRun &&
+              handleCreateOrRun('run', { name, cod })
             // eslint-disable-next-line react/jsx-curly-newline
           }
           disabled={!canCreate}

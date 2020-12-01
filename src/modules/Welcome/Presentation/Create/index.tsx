@@ -8,19 +8,19 @@ const Create: React.FC<PresentationScreenProps> = ({
   handleCreateOrRun,
   handleBack,
 }) => {
-  const [sprint, setSprint] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
 
-  const canCreate = useMemo(() => sprint.length !== 0 || email.length !== 0, [
-    sprint,
+  const canCreate = useMemo(() => name.length !== 0 || email.length !== 0, [
+    name,
     email,
   ]);
 
   return (
     <>
-      <Title>Sprint:</Title>
+      <Title>Nome:</Title>
       <Input
-        onChangeText={(value: string) => setSprint(value ?? '')}
+        onChangeText={(value: string) => setName(value ?? '')}
         keyboardAppearance="dark"
       />
       <Title>Email:</Title>
@@ -35,7 +35,10 @@ const Create: React.FC<PresentationScreenProps> = ({
         <Button
           text="Criar"
           onPress={
-            () => canCreate && handleCreateOrRun && handleCreateOrRun('create')
+            () =>
+              canCreate &&
+              handleCreateOrRun &&
+              handleCreateOrRun('create', { name, email })
             // eslint-disable-next-line react/jsx-curly-newline
           }
           disabled={!canCreate}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 import ButtonAlternative from '../../../components/ButtonAlternative';
 
@@ -28,13 +28,16 @@ import {
   CardTableSectionAttention,
   CardTableLine,
 } from './styles';
+import { useMeet } from '../../../hooks/meet';
 
 const Admin: React.FC = () => {
+  const { name } = useMeet();
+
   return (
     <Container>
       <StatusBar barStyle="light-content" backgroundColor="#222533" />
       <HeaderView>
-        <HelloText>Olá, Rogério!</HelloText>
+        <HelloText>Olá, {name}!</HelloText>
       </HeaderView>
       <Card>
         <SharedViewDescription>

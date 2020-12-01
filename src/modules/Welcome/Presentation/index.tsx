@@ -9,10 +9,20 @@ import LogoImg from '../../../assets/images/logo.png';
 import Main from './Main';
 import Create from './Create';
 import Run from './Run';
+import { CreateMeetProps, RunMeetProps, useMeet } from '../../../hooks/meet';
+
+interface CreateOrRunMeet {
+  name: string;
+  email?: string;
+  cod?: string;
+}
 
 export interface PresentationScreenProps {
   goTo?: (key: 'create' | 'run') => void;
-  handleCreateOrRun?: (type: 'create' | 'run') => void;
+  handleCreateOrRun?: (
+    type: 'create' | 'run',
+    data: CreateMeetProps | RunMeetProps,
+  ) => void;
   handleBack?: () => void;
 }
 
@@ -20,6 +30,7 @@ const Presentation: React.FC = () => {
   const [selected, setSelected] = useState<'main' | 'create' | 'run'>('main');
   const [cardMovimentation] = useState(new Animated.Value(350));
   const { navigate } = useNavigation();
+  const { createMeet, runMeet } = useMeet();
 
   useEffect(() => {
     Animated.timing(cardMovimentation, {
@@ -62,15 +73,24 @@ const Presentation: React.FC = () => {
     [cardMovimentation],
   );
 
-  const handleCreateOrRun = useCallback(() => {
-    Animated.timing(cardMovimentation, {
-      toValue: 350,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => {
-      navigate('Term');
-    });
-  }, [cardMovimentation, navigate]);
+  const handleCreateOrRun = useCallback(
+    (type: 'create' | 'run', data: CreateOrRunMeet) => {
+      Animated.timing(cardMovimentation, {
+        toValue: 350,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        if (type === 'create') {
+          createMeet({ ...data });
+          navigate('Term');
+        } else if (type === 'run') {
+          runMeet({ ...data });
+          navigate('Term');
+        }
+      });
+    },
+    [cardMovimentation, navigate],
+  );
 
   const components = useMemo(
     () => ({
