@@ -34,7 +34,7 @@ const Admin: React.FC = () => {
   const { name } = useMeet();
 
   return (
-    <Container>
+    <Container contentContainerStyle={{ paddingBottom: 100 }}>
       <StatusBar barStyle="light-content" backgroundColor="#222533" />
       <HeaderView>
         <HelloText>Olá, {name}!</HelloText>
@@ -142,6 +142,29 @@ const Admin: React.FC = () => {
               {/* <Entypo name="controller-stop" size={24} color="white" /> */}
               <AntDesign name="caretright" size={24} color="white" />
             </ButtonAlternative>
+          </CardFooter>
+        </CardTable>
+      </Card>
+      <Card>
+        <CardTitle>Histórias</CardTitle>
+        <CardTable>
+          <CardTableHeader>
+            <CardTableColumn flex={1}>
+              <CardTableHeaderTitle>Nome</CardTableHeaderTitle>
+            </CardTableColumn>
+          </CardTableHeader>
+          <CardTableSection>
+            <CardTableLine>
+              <CardTableColumn flex={2}>
+                <CardTableSectionName>
+                  <CardTableSectionText>Criar um botão</CardTableSectionText>
+                  <CardTableSectionDescription>Bug</CardTableSectionDescription>
+                </CardTableSectionName>
+              </CardTableColumn>
+            </CardTableLine>
+          </CardTableSection>
+          <CardFooter>
+            <ButtonAlternative text="Adicionar" />
           </CardFooter>
         </CardTable>
       </Card>

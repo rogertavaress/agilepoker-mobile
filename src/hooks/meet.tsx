@@ -13,9 +13,15 @@ export interface RunMeetProps {
 interface MeetContextData {
   term: boolean;
   name?: string;
+  histories?: HistoryProps[];
   confirmTerms: () => void;
   createMeet: (data: CreateMeetProps) => void;
   runMeet: (data: RunMeetProps) => void;
+}
+
+interface HistoryProps {
+  name: string;
+  category: string;
 }
 
 const MeetContext = createContext<MeetContextData>({} as MeetContextData);
@@ -26,6 +32,7 @@ export const MeetProvider: React.FC = ({ children }) => {
   const [name, setName] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [cod, setCod] = useState<string>();
+  const [histories, setHistories] = useState<HistoryProps[]>([]);
 
   const confirmTerms = useCallback(() => {
     setTerm(true);
@@ -53,7 +60,7 @@ export const MeetProvider: React.FC = ({ children }) => {
 
   return (
     <MeetContext.Provider
-      value={{ term, name, confirmTerms, createMeet, runMeet }}
+      value={{ term, name, histories, confirmTerms, createMeet, runMeet }}
     >
       {children}
     </MeetContext.Provider>

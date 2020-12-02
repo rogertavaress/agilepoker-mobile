@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import styled from 'styled-components/native';
 
@@ -6,9 +7,11 @@ interface CardTableColumnProps {
 }
 
 export const Container = styled.ScrollView`
-  flex: 1;
+  padding-right: 25px;
+  padding-left: 25px;
+  padding-top: ${(Platform.OS === 'ios' ? getStatusBarHeight() : 0) + 40}px;
+  padding-bottom: 50px;
   background-color: #222533;
-  padding: ${getStatusBarHeight() + 40}px 25px;
 `;
 
 export const HeaderView = styled.View`
