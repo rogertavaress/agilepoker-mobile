@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
+import CreateHistoryDTO from '../DTOs/CreateHistoryDTO';
 
 export interface CreateMeetProps {
   name: string;
@@ -15,6 +16,7 @@ interface MeetContextData {
   name?: string;
   histories?: HistoryProps[];
   confirmTerms: () => void;
+  createHistory: (data: CreateHistoryDTO) => void;
   createMeet: (data: CreateMeetProps) => void;
   runMeet: (data: RunMeetProps) => void;
 }
@@ -36,6 +38,10 @@ export const MeetProvider: React.FC = ({ children }) => {
 
   const confirmTerms = useCallback(() => {
     setTerm(true);
+  }, []);
+
+  const createHistory = useCallback((data: CreateHistoryDTO) => {
+    setHistories((state) => [...state, { ...data }]);
   }, []);
 
   const createMeet = useCallback((data: CreateMeetProps) => {
@@ -60,7 +66,15 @@ export const MeetProvider: React.FC = ({ children }) => {
 
   return (
     <MeetContext.Provider
-      value={{ term, name, histories, confirmTerms, createMeet, runMeet }}
+      value={{
+        term,
+        name,
+        histories,
+        confirmTerms,
+        createHistory,
+        createMeet,
+        runMeet,
+      }}
     >
       {children}
     </MeetContext.Provider>

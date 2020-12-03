@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
+import { useNavigation } from '@react-navigation/native';
 import ButtonAlternative from '../../../components/ButtonAlternative';
 
 import {
@@ -31,7 +32,8 @@ import {
 import { useMeet } from '../../../hooks/meet';
 
 const Admin: React.FC = () => {
-  const { name } = useMeet();
+  const { name, histories } = useMeet();
+  const { navigate } = useNavigation();
 
   return (
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
@@ -154,17 +156,24 @@ const Admin: React.FC = () => {
             </CardTableColumn>
           </CardTableHeader>
           <CardTableSection>
-            <CardTableLine>
-              <CardTableColumn flex={2}>
-                <CardTableSectionName>
-                  <CardTableSectionText>Criar um botão</CardTableSectionText>
-                  <CardTableSectionDescription>Bug</CardTableSectionDescription>
-                </CardTableSectionName>
-              </CardTableColumn>
-            </CardTableLine>
+            {histories?.map((history) => (
+              <CardTableLine key={`${history.category}-${history.name}`}>
+                <CardTableColumn flex={2}>
+                  <CardTableSectionName>
+                    <CardTableSectionText>{history.name}</CardTableSectionText>
+                    <CardTableSectionDescription>
+                      {history.category}
+                    </CardTableSectionDescription>
+                  </CardTableSectionName>
+                </CardTableColumn>
+              </CardTableLine>
+            ))}
           </CardTableSection>
           <CardFooter>
-            <ButtonAlternative text="Adicionar" />
+            <ButtonAlternative
+              text="Adicionar"
+              onPress={() => navigate('HistoryCreate')}
+            />
           </CardFooter>
         </CardTable>
       </Card>

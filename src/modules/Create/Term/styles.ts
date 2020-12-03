@@ -5,10 +5,6 @@ interface TermInputCheckProps {
   isChecked: boolean;
 }
 
-interface ButtonConfirmProps {
-  isDisabled: boolean;
-}
-
 export const Container = styled.View`
   flex: 1;
   background-color: #222533;

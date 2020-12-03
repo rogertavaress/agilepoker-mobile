@@ -6,6 +6,7 @@ import Presentation from '../modules/Welcome/Presentation';
 import Term from '../modules/Create/Term';
 import Admin from '../modules/Meet/Admin';
 import Participant from '../modules/Meet/Participant';
+import HistoryCreate from '../modules/Meet/Admin/HistoryCreate';
 
 const App = createStackNavigator();
 
@@ -15,12 +16,13 @@ const Routes: React.FC = () => {
       initialRouteName="Presentation"
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: 'gray' },
+        cardStyle: { backgroundColor: '#222533' },
       }}
     >
       <App.Screen name="Presentation" component={Presentation} />
       <App.Screen name="Term" component={Term} />
       <App.Screen name="Admin" component={Admin} />
+      <App.Screen name="HistoryCreate" component={HistoryCreate} />
       <App.Screen name="Participant" component={Participant} />
     </App.Navigator>
   );
