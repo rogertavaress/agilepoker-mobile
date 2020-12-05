@@ -10,24 +10,27 @@ import {
   HeaderView,
   HelloText,
   Card,
-  SharedViewDescription,
-  SharedViewCode,
-  SharedViewCodeText,
   CardFooter,
   Space,
   CardTitle,
   CardTable,
   CardTableHeader,
+  CardTableColumn,
   CardTableHeaderTitle,
   CardTableSection,
-  CardTableColumn,
+  CardTableLine,
   CardTableSectionScore,
   CardTableSectionScoreText,
   CardTableSectionName,
   CardTableSectionText,
   CardTableSectionDescription,
+} from '../styles';
+
+import {
+  SharedViewDescription,
+  SharedViewCode,
+  SharedViewCodeText,
   CardTableSectionAttention,
-  CardTableLine,
 } from './styles';
 import { useMeet } from '../../../hooks/meet';
 
@@ -132,10 +135,6 @@ const Admin: React.FC = () => {
             </CardTableLine>
           </CardTableSection>
           <CardFooter>
-            <ButtonAlternative>
-              <AntDesign name="stepbackward" size={24} color="white" />
-            </ButtonAlternative>
-            <Space />
             <ButtonAlternative>
               <AntDesign name="stepforward" size={24} color="white" />
             </ButtonAlternative>
