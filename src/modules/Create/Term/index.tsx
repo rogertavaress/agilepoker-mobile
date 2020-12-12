@@ -16,7 +16,7 @@ import {
 } from './styles';
 
 const Term: React.FC = () => {
-  const { confirmTerms, term } = useMeet();
+  const { confirmTerms, term, type } = useMeet();
   const { reset } = useNavigation();
 
   const [data, setData] = useState([
@@ -62,10 +62,24 @@ const Term: React.FC = () => {
   }, [confirmTerms]);
 
   useEffect(() => {
+    let newPage = '';
+
+    switch (type) {
+      case 'admin':
+        newPage = 'Admin';
+        break;
+      case 'participant':
+        newPage = 'Participant';
+        break;
+      default:
+        newPage = 'Presentation';
+        break;
+    }
+
     if (term) {
       reset({
         index: 0,
-        routes: [{ name: 'Admin' }],
+        routes: [{ name: newPage }],
       });
     }
   }, [term]);

@@ -24,6 +24,6 @@ export const Container = styled.View<ContainerProps>`
 export const InputTextCustomComponent = styled.TextInput`
   flex: 1;
   color: white;
-  font-size: 32px;
+  font-size: 24px;
   text-align: center;
 `;

@@ -1,29 +1,26 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import CreateHistoryDTO from '../DTOs/CreateHistoryDTO';
-
-export interface CreateMeetProps {
-  name: string;
-  email?: string;
-}
-
-export interface RunMeetProps {
-  name: string;
-  cod?: string;
-}
+import { CreateMeetDTO } from '../DTOs/CreateMeetDTO';
+import { RunMeetDTO } from '../DTOs/RunMeetDTO';
+import History from '../entities/History';
+import Meet from '../entities/Meet';
+import api from '../services/api';
 
 interface MeetContextData {
   term: boolean;
-  name?: string;
-  histories?: HistoryProps[];
+  meet?: Meet;
+  type?: 'participant' | 'admin';
+  histories?: History[];
   confirmTerms: () => void;
   createHistory: (data: CreateHistoryDTO) => void;
-  createMeet: (data: CreateMeetProps) => void;
-  runMeet: (data: RunMeetProps) => void;
-}
-
-interface HistoryProps {
-  name: string;
-  category: string;
+  createMeet: (data: CreateMeetDTO) => Promise<void>;
+  runMeet: (data: RunMeetDTO) => Promise<void>;
 }
 
 const MeetContext = createContext<MeetContextData>({} as MeetContextData);
@@ -31,36 +28,40 @@ const MeetContext = createContext<MeetContextData>({} as MeetContextData);
 export const MeetProvider: React.FC = ({ children }) => {
   const [type, setType] = useState<'participant' | 'admin'>();
   const [term, setTerm] = useState(false);
-  const [name, setName] = useState<string>();
-  const [email, setEmail] = useState<string>();
-  const [cod, setCod] = useState<string>();
-  const [histories, setHistories] = useState<HistoryProps[]>([]);
+  const [meet, setMeet] = useState<Meet>();
+  const [histories, setHistories] = useState<History[]>([]);
 
   const confirmTerms = useCallback(() => {
     setTerm(true);
   }, []);
 
   const createHistory = useCallback((data: CreateHistoryDTO) => {
-    setHistories((state) => [...state, { ...data }]);
+    // setHistories((state) => [...state, { ...data }]);
   }, []);
 
-  const createMeet = useCallback((data: CreateMeetProps) => {
-    if (data.name) {
-      setName(data.name);
-    }
-    if (data.email) {
-      setEmail(data.email);
-    }
+  const createMeet = useCallback(async ({ name, email }: CreateMeetDTO) => {
+    const { data } = await api.post('/meets', {
+      name,
+      email,
+    });
+
+    setMeet({
+      ...data,
+    });
+
     setType('admin');
   }, []);
 
-  const runMeet = useCallback((data: RunMeetProps) => {
-    if (data.name) {
-      setName(data.name);
-    }
-    if (data.cod) {
-      setCod(data.cod);
-    }
+  const runMeet = useCallback(async ({ name, cod }: RunMeetDTO) => {
+    const { data } = await api.post('/participants', {
+      idMeet: cod,
+      name,
+    });
+
+    setMeet({
+      ...data,
+    });
+
     setType('participant');
   }, []);
 
@@ -68,7 +69,8 @@ export const MeetProvider: React.FC = ({ children }) => {
     <MeetContext.Provider
       value={{
         term,
-        name,
+        type,
+        meet,
         histories,
         confirmTerms,
         createHistory,

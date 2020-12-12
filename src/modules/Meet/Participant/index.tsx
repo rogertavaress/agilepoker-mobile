@@ -28,7 +28,7 @@ import ScoreCard from '../../../components/ScoreCard';
 const Participant: React.FC = () => {
   const { name } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
-  const [canVote, setCanVote] = useState(true);
+  const [canVote, setCanVote] = useState(false);
 
   const selectCard = useCallback((value: number) => {
     setCardSelected(value);
@@ -38,7 +38,7 @@ const Participant: React.FC = () => {
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
       <StatusBar barStyle="light-content" backgroundColor="#222533" />
       <HeaderView>
-        <HelloText>Olá, {name}!</HelloText>
+        <HelloText>Olá, {name ?? 'John Doe'}!</HelloText>
       </HeaderView>
       <Card>
         <CardTitle>Meus votos</CardTitle>

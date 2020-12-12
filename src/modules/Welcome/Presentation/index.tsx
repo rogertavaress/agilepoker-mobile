@@ -9,7 +9,9 @@ import LogoImg from '../../../assets/images/logo.png';
 import Main from './Main';
 import Create from './Create';
 import Run from './Run';
-import { CreateMeetProps, RunMeetProps, useMeet } from '../../../hooks/meet';
+import { useMeet } from '../../../hooks/meet';
+import { CreateMeetDTO } from '../../../DTOs/CreateMeetDTO';
+import { RunMeetDTO } from '../../../DTOs/RunMeetDTO';
 
 interface CreateOrRunMeet {
   name: string;
@@ -21,7 +23,7 @@ export interface PresentationScreenProps {
   goTo?: (key: 'create' | 'run') => void;
   handleCreateOrRun?: (
     type: 'create' | 'run',
-    data: CreateMeetProps | RunMeetProps,
+    data: CreateMeetDTO | RunMeetDTO,
   ) => void;
   handleBack?: () => void;
 }
@@ -74,22 +76,24 @@ const Presentation: React.FC = () => {
   );
 
   const handleCreateOrRun = useCallback(
-    (type: 'create' | 'run', data: CreateOrRunMeet) => {
+    (type: 'create' | 'run', { name, email, cod }: CreateOrRunMeet) => {
       Animated.timing(cardMovimentation, {
         toValue: 350,
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
         if (type === 'create') {
-          createMeet({ ...data });
-          navigate('Term');
+          createMeet({ name, email }).then(() => {
+            navigate('Term');
+          });
         } else if (type === 'run') {
-          runMeet({ ...data });
-          navigate('Term');
+          runMeet({ name, cod: cod ?? 'WITHOUT-COD' }).then(() => {
+            navigate('Term');
+          });
         }
       });
     },
-    [cardMovimentation, navigate],
+    [cardMovimentation, createMeet, navigate, runMeet],
   );
 
   const components = useMemo(
