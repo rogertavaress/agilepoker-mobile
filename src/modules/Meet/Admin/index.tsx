@@ -124,7 +124,7 @@ const Admin: React.FC = () => {
       resp.push({
         id: participant.id,
         name: participant.name,
-        vote: vote ? `${vote}` : '?',
+        vote: vote !== undefined && vote >= 0 ? `${vote}` : '?',
       });
     });
 
@@ -154,7 +154,7 @@ const Admin: React.FC = () => {
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
       <StatusBar barStyle="light-content" backgroundColor="#222533" />
       <HeaderView>
-        <HelloText>Olá, {meet?.name}!</HelloText>
+        <HelloText>Olá{meet?.name ? `, ${meet?.name}` : ''}!</HelloText>
       </HeaderView>
       <Card>
         <SharedViewDescription>
@@ -250,7 +250,7 @@ const Admin: React.FC = () => {
               <ButtonAlternative
                 enabled={
                   meet.histories[meet.histories.length - 1].id !==
-                  meet.historyNowId
+                    meet.historyNowId && meet.status === 'paused'
                 }
                 onPress={handleNextHistory}
               >

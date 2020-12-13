@@ -20,10 +20,8 @@ const HistoryCreate: React.FC = () => {
   const { goBack } = useNavigation();
   const { createHistory } = useMeet();
 
-  const create = useCallback(() => {
-    createHistory({ name, category }).then(() => {
-      goBack();
-    });
+  const create = useCallback(async () => {
+    await createHistory({ name, category }, async () => goBack());
   }, [category, createHistory, goBack, name]);
 
   const canAdd = useMemo(() => !!name.length && !!category.length, [

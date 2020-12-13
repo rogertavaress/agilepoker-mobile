@@ -19,7 +19,7 @@ export const FormArea = styled.View`
 `;
 
 export const TermTitle = styled.Text`
-  font-size: 24px;
+  font-size: 18px;
   text-align: center;
   color: white;
   width: 80%;

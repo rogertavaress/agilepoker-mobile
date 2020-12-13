@@ -48,6 +48,7 @@ const Presentation: React.FC = () => {
       duration: 500,
       useNativeDriver: true,
     }).start(() => {
+      setSelected('main');
       Animated.timing(cardMovimentation, {
         toValue: 0,
         duration: 500,
@@ -80,15 +81,31 @@ const Presentation: React.FC = () => {
         toValue: 350,
         duration: 500,
         useNativeDriver: true,
-      }).start(() => {
+      }).start(async () => {
         if (type === 'create') {
-          createMeet({ name, email }).then(() => {
-            navigate('Term');
-          });
+          await createMeet(
+            { name, email },
+            async () => navigate('Term'),
+            async () => {
+              Animated.timing(cardMovimentation, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+              }).start();
+            },
+          );
         } else if (type === 'run') {
-          runMeet({ name, cod: cod ?? 'WITHOUT-COD' }).then(() => {
-            navigate('Term');
-          });
+          await runMeet(
+            { name, cod: cod ?? 'WITHOUT-COD' },
+            async () => navigate('Term'),
+            async () => {
+              Animated.timing(cardMovimentation, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+              }).start();
+            },
+          );
         }
       });
     },

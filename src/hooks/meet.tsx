@@ -9,6 +9,7 @@ import { Alert } from 'react-native';
 import CreateHistoryDTO from '../DTOs/CreateHistoryDTO';
 import { CreateMeetDTO } from '../DTOs/CreateMeetDTO';
 import { RunMeetDTO } from '../DTOs/RunMeetDTO';
+import SendVoteDTO from '../DTOs/SendVoteDTO';
 import Meet from '../entities/Meet';
 import Participant from '../entities/Participant';
 import api from '../services/api';
@@ -19,14 +20,33 @@ interface MeetContextData {
   meet?: Meet;
   participant?: Participant;
   type?: 'participant' | 'admin';
-  confirmTerms: () => Promise<void>;
-  changeHistoryNow: (idHistory: number) => Promise<void>;
+  confirmTerms: (callback?: () => Promise<void>) => Promise<void>;
+  changeHistoryNow: (
+    idHistory: number,
+    callback?: () => Promise<void>,
+  ) => Promise<void>;
   changeMeetStatus: (
     status: 'awaiting_sign' | 'started' | 'paused' | 'finished',
+    callback?: () => Promise<void>,
   ) => Promise<void>;
-  createHistory: (data: CreateHistoryDTO) => Promise<void>;
-  createMeet: (data: CreateMeetDTO) => Promise<void>;
-  runMeet: (data: RunMeetDTO) => Promise<void>;
+  createHistory: (
+    data: CreateHistoryDTO,
+    callback?: () => Promise<void>,
+  ) => Promise<void>;
+  createMeet: (
+    data: CreateMeetDTO,
+    callback?: () => Promise<void>,
+    error?: () => Promise<void>,
+  ) => Promise<void>;
+  runMeet: (
+    data: RunMeetDTO,
+    callback?: () => Promise<void>,
+    error?: () => Promise<void>,
+  ) => Promise<void>;
+  sendVote: (
+    data: SendVoteDTO,
+    callback?: () => Promise<void>,
+  ) => Promise<void>;
 }
 
 const MeetContext = createContext<MeetContextData>({} as MeetContextData);
@@ -38,30 +58,43 @@ export const MeetProvider: React.FC = ({ children }) => {
   const [meet, setMeet] = useState<Meet>();
   const [participant, setParticipant] = useState<Participant>();
 
-  const confirmTerms = useCallback(async () => {
-    if (type === 'participant') {
-      setTerm(true);
-    } else {
-      try {
-        const { data } = await api.patch('/meets/status', {
-          idMeet: meet?.id,
-          statusMeet: 'paused',
-        });
-
-        socket.emit('sync-request', data);
-
+  const confirmTerms = useCallback(
+    async (callback?: () => Promise<void>) => {
+      if (type === 'participant') {
         setTerm(true);
-        setMeet({
-          ...data,
-        });
-      } catch (err: any) {
-        Alert.alert('Erro', err.response.data.message);
+        if (callback) {
+          await callback();
+        }
+      } else {
+        try {
+          const { data } = await api.patch('/meets/status', {
+            idMeet: meet?.id,
+            statusMeet: 'paused',
+          });
+
+          socket.emit('sync-request', data);
+
+          setTerm(true);
+          setMeet({
+            ...data,
+          });
+
+          if (callback) {
+            await callback();
+          }
+        } catch (err: any) {
+          Alert.alert('Erro', err.response.data.message);
+        }
       }
-    }
-  }, [meet, socket, type]);
+    },
+    [meet, socket, type],
+  );
 
   const createHistory = useCallback(
-    async ({ name, category }: CreateHistoryDTO) => {
+    async (
+      { name, category }: CreateHistoryDTO,
+      callback?: () => Promise<void>,
+    ) => {
       try {
         const { data } = await api.post('/histories', {
           meetId: meet?.id,
@@ -72,6 +105,10 @@ export const MeetProvider: React.FC = ({ children }) => {
         socket.emit('sync-request', data);
 
         setMeet({ ...data });
+
+        if (callback) {
+          await callback();
+        }
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
@@ -80,7 +117,11 @@ export const MeetProvider: React.FC = ({ children }) => {
   );
 
   const createMeet = useCallback(
-    async ({ name, email }: CreateMeetDTO) => {
+    async (
+      { name, email }: CreateMeetDTO,
+      callback?: () => Promise<void>,
+      error?: () => Promise<void>,
+    ) => {
       try {
         const { data } = await api.post('/meets', {
           name,
@@ -94,7 +135,14 @@ export const MeetProvider: React.FC = ({ children }) => {
         socket.emit('join-meet', data);
 
         setType('admin');
+
+        if (callback) {
+          await callback();
+        }
       } catch (err: any) {
+        if (error) {
+          await error();
+        }
         Alert.alert('Erro', err.response.data.message);
       }
     },
@@ -102,7 +150,11 @@ export const MeetProvider: React.FC = ({ children }) => {
   );
 
   const runMeet = useCallback(
-    async ({ name, cod }: RunMeetDTO) => {
+    async (
+      { name, cod }: RunMeetDTO,
+      callback?: () => Promise<void>,
+      error?: () => Promise<void>,
+    ) => {
       try {
         const { data } = await api.post('/participants', {
           idMeet: cod,
@@ -120,7 +172,14 @@ export const MeetProvider: React.FC = ({ children }) => {
         });
 
         setType('participant');
+
+        if (callback) {
+          await callback();
+        }
       } catch (err: any) {
+        if (error) {
+          await error();
+        }
         Alert.alert('Erro', err.response.data.message);
       }
     },
@@ -128,7 +187,7 @@ export const MeetProvider: React.FC = ({ children }) => {
   );
 
   const changeHistoryNow = useCallback(
-    async (idHistory: number) => {
+    async (idHistory: number, callback?: () => Promise<void>) => {
       try {
         const { data } = await api.patch('/meets/historyNow', {
           idMeet: meet?.id,
@@ -138,6 +197,10 @@ export const MeetProvider: React.FC = ({ children }) => {
         socket.emit('sync-request', data);
 
         setMeet({ ...data });
+
+        if (callback) {
+          await callback();
+        }
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
@@ -146,7 +209,10 @@ export const MeetProvider: React.FC = ({ children }) => {
   );
 
   const changeMeetStatus = useCallback(
-    async (statusMeet: 'awaiting_sign' | 'started' | 'paused' | 'finished') => {
+    async (
+      statusMeet: 'awaiting_sign' | 'started' | 'paused' | 'finished',
+      callback?: () => Promise<void>,
+    ) => {
       try {
         const { data } = await api.patch('/meets/status', {
           idMeet: meet?.id,
@@ -156,6 +222,10 @@ export const MeetProvider: React.FC = ({ children }) => {
         socket.emit('sync-request', data);
 
         setMeet({ ...data });
+
+        if (callback) {
+          await callback();
+        }
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
@@ -163,9 +233,32 @@ export const MeetProvider: React.FC = ({ children }) => {
     [meet, socket],
   );
 
+  const sendVote = useCallback(
+    async (sendVoteDTO: SendVoteDTO, callback?: () => Promise<void>) => {
+      try {
+        const { data } = await api.post('/votes', {
+          ...sendVoteDTO,
+          participantId: participant?.id,
+          historyId: meet?.historyNowId,
+          meetId: meet?.id,
+        });
+
+        socket.emit('sync-request', data);
+
+        setMeet({ ...data });
+
+        if (callback) {
+          await callback();
+        }
+      } catch (err: any) {
+        Alert.alert('Erro', err.response.data.message);
+      }
+    },
+    [meet, participant, socket],
+  );
+
   useEffect(() => {
     socket.on('sync', (data: any) => {
-      console.log('Atualizando');
       setMeet({ ...data });
     });
   }, [socket]);
@@ -183,6 +276,7 @@ export const MeetProvider: React.FC = ({ children }) => {
         createHistory,
         createMeet,
         runMeet,
+        sendVote,
       }}
     >
       {children}

@@ -27,7 +27,7 @@ export const InputArea = styled.View`
 `;
 
 export const Title = styled.Text`
-  font-size: 24px;
+  font-size: 18px;
   text-align: center;
   color: white;
   width: 80%;

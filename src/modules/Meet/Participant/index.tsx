@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'react-native';
 
 import {
@@ -34,8 +34,9 @@ interface MyHistoryVoteItemProps {
 }
 
 const Participant: React.FC = () => {
-  const { participant, meet } = useMeet();
+  const { participant, meet, sendVote } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
+  const [historyNowId, setHistoryNowId] = useState<number>();
 
   const canVote = useMemo(() => {
     return meet?.status === 'started' && meet.historyNowId >= 0;
@@ -67,9 +68,30 @@ const Participant: React.FC = () => {
     return resp;
   }, [histories, participant]);
 
-  const selectCard = useCallback((value: number) => {
-    setCardSelected(value);
-  }, []);
+  useEffect(() => {
+    if (historyNowId !== meet?.historyNowId) {
+      setHistoryNowId(meet?.historyNowId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meet]);
+
+  useEffect(() => {
+    setCardSelected(undefined);
+  }, [historyNowId]);
+
+  const selectCard = useCallback(
+    async (value: number) => {
+      await sendVote(
+        {
+          number: value,
+        },
+        async () => {
+          setCardSelected(value);
+        },
+      );
+    },
+    [sendVote],
+  );
 
   return (
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
@@ -118,7 +140,9 @@ const Participant: React.FC = () => {
         </Card>
       )}
       <Card>
-        <CardTitle>Cartas</CardTitle>
+        <CardTitle>
+          Cartas {meet?.historyNow?.name ? ` - ${meet?.historyNow?.name}` : ''}
+        </CardTitle>
         <ScoreCardsArea>
           <ScoreCardLine>
             <ScoreCard

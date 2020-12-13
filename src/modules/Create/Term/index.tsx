@@ -57,8 +57,8 @@ const Term: React.FC = () => {
     [data],
   );
 
-  const handleConfirm = useCallback(() => {
-    confirmTerms();
+  const handleConfirm = useCallback(async () => {
+    await confirmTerms();
   }, [confirmTerms]);
 
   useEffect(() => {
