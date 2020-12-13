@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StatusBar } from 'react-native';
 
 import {
@@ -24,11 +24,46 @@ import {
 import { ScoreCardsArea, ScoreCardLine } from './styles';
 import { useMeet } from '../../../hooks/meet';
 import ScoreCard from '../../../components/ScoreCard';
+import History from '../../../entities/History';
+
+interface MyHistoryVoteItemProps {
+  id: number;
+  name: string;
+  category: string;
+  vote: string;
+}
 
 const Participant: React.FC = () => {
-  const { name } = useMeet();
+  const { participant, meet } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
-  const [canVote, setCanVote] = useState(false);
+
+  const canVote = useMemo(() => meet?.status === 'started', [meet]);
+
+  const histories = useMemo<History[]>(
+    () => meet?.histories?.sort((a, b) => a.id - b.id) ?? [],
+    [meet],
+  );
+
+  const myHistoryVotes = useMemo<MyHistoryVoteItemProps[]>(() => {
+    const resp: MyHistoryVoteItemProps[] = [];
+
+    histories.forEach((history) => {
+      const vote = history.votes.find(
+        (voteHistory) => voteHistory.participantId === participant?.id,
+      );
+
+      if (vote) {
+        resp.push({
+          id: history.id,
+          name: history.name,
+          category: history.category,
+          vote: `${vote.number}`,
+        });
+      }
+    });
+
+    return resp;
+  }, [histories, participant]);
 
   const selectCard = useCallback((value: number) => {
     setCardSelected(value);
@@ -38,36 +73,48 @@ const Participant: React.FC = () => {
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
       <StatusBar barStyle="light-content" backgroundColor="#222533" />
       <HeaderView>
-        <HelloText>Olá, {name ?? 'John Doe'}!</HelloText>
+        <HelloText>
+          Olá{participant?.name ? `, ${participant?.name}` : ''}!
+        </HelloText>
       </HeaderView>
-      <Card>
-        <CardTitle>Meus votos</CardTitle>
-        <CardTable>
-          <CardTableHeader>
-            <CardTableColumn flex={3}>
-              <CardTableHeaderTitle>História</CardTableHeaderTitle>
-            </CardTableColumn>
-            <CardTableColumn flex={1}>
-              <CardTableHeaderTitle>Pontuação</CardTableHeaderTitle>
-            </CardTableColumn>
-          </CardTableHeader>
-          <CardTableSection>
-            <CardTableLine>
+      {!!myHistoryVotes.length && (
+        <Card>
+          <CardTitle>Meus votos</CardTitle>
+          <CardTable>
+            <CardTableHeader>
               <CardTableColumn flex={3}>
-                <CardTableSectionName>
-                  <CardTableSectionText>Criar um botão</CardTableSectionText>
-                  <CardTableSectionDescription>Bug</CardTableSectionDescription>
-                </CardTableSectionName>
+                <CardTableHeaderTitle>História</CardTableHeaderTitle>
               </CardTableColumn>
               <CardTableColumn flex={1}>
-                <CardTableSectionScore>
-                  <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                </CardTableSectionScore>
+                <CardTableHeaderTitle>Pontuação</CardTableHeaderTitle>
               </CardTableColumn>
-            </CardTableLine>
-          </CardTableSection>
-        </CardTable>
-      </Card>
+            </CardTableHeader>
+            <CardTableSection>
+              {myHistoryVotes.map((history) => (
+                <CardTableLine key={history.id}>
+                  <CardTableColumn flex={3}>
+                    <CardTableSectionName>
+                      <CardTableSectionText>
+                        {history.name}
+                      </CardTableSectionText>
+                      <CardTableSectionDescription>
+                        {history.category}
+                      </CardTableSectionDescription>
+                    </CardTableSectionName>
+                  </CardTableColumn>
+                  <CardTableColumn flex={1}>
+                    <CardTableSectionScore>
+                      <CardTableSectionScoreText>
+                        {history.vote}
+                      </CardTableSectionScoreText>
+                    </CardTableSectionScore>
+                  </CardTableColumn>
+                </CardTableLine>
+              ))}
+            </CardTableSection>
+          </CardTable>
+        </Card>
+      )}
       <Card>
         <CardTitle>Cartas</CardTitle>
         <ScoreCardsArea>

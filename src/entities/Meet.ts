@@ -8,6 +8,8 @@ interface Meet {
   email: string;
   status: string;
   histories: History[];
+  historyNowId: number;
+  historyNow: History;
   participants: Participant[];
   created_at: Date;
   updated_at: Date;

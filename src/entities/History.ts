@@ -3,7 +3,7 @@ import Vote from './Vote';
 
 /* eslint-disable camelcase */
 interface History {
-  id: string;
+  id: number;
   name: string;
   category: string;
   votes: Vote[];

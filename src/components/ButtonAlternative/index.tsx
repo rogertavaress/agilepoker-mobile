@@ -8,9 +8,13 @@ interface IButton extends RectButtonProperties {
   disabled?: boolean;
 }
 
-const ButtonAlternative: React.FC<IButton> = ({ text, ...rest }) => {
+const ButtonAlternative: React.FC<IButton> = ({
+  text,
+  enabled = true,
+  ...rest
+}) => {
   return (
-    <Container {...rest}>
+    <Container enabled={enabled} {...rest}>
       {text ? (
         <>
           <ButtonComponentText>{text}</ButtonComponentText>

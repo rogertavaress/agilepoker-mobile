@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { StatusBar } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import React, { useCallback, useMemo } from 'react';
+import { StatusBar, Share } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 
 import { useNavigation } from '@react-navigation/native';
-import { string } from 'yup';
 import ButtonAlternative from '../../../components/ButtonAlternative';
 
 import {
@@ -35,36 +35,120 @@ import {
 } from './styles';
 import { useMeet } from '../../../hooks/meet';
 import Vote from '../../../entities/Vote';
+import History from '../../../entities/History';
+
+interface RoundNowItemProps {
+  id: string;
+  name: string;
+  vote: string;
+}
+interface HistoryNumberItemProps {
+  id: number;
+  name: string;
+  category: string;
+  vote: string;
+}
 
 const Admin: React.FC = () => {
-  const { meet } = useMeet();
+  const { meet, changeMeetStatus, changeHistoryNow } = useMeet();
   const { navigate } = useNavigation();
 
-  const handleSelectHistoryVoteByHistories = useCallback(
-    (votes: Vote[]): number => {
-      let resp = 0;
-      let respIndex = -1;
-      const votesResp: number[] = [];
-
-      votes.forEach((vote) => {
-        if (votesResp[vote.number]) {
-          votesResp[vote.number] += 1;
-        } else {
-          votesResp[vote.number] = 1;
-        }
-      });
-
-      votesResp.forEach((vote, index) => {
-        if (vote > resp) {
-          respIndex = index;
-          resp = vote;
-        }
-      });
-
-      return respIndex;
-    },
-    [],
+  const histories = useMemo<History[]>(
+    () => meet?.histories?.sort((a, b) => a.id - b.id) ?? [],
+    [meet],
   );
+
+  const selectHistoryVoteByHistories = useCallback((votes: Vote[]): string => {
+    let resp = 0;
+    let respIndex = -1;
+    const votesResp: number[] = [];
+
+    votes?.forEach((vote) => {
+      if (votesResp[vote.number]) {
+        votesResp[vote.number] += 1;
+      } else {
+        votesResp[vote.number] = 1;
+      }
+    });
+
+    votesResp.forEach((vote, index) => {
+      if (vote > resp) {
+        respIndex = index;
+        resp = vote;
+      }
+    });
+
+    return respIndex === -1 ? '?' : `${respIndex}`;
+  }, []);
+
+  const handleCopy = useCallback(() => {
+    Clipboard.setString(meet?.id ?? '');
+  }, [meet]);
+
+  const handleShare = useCallback(async () => {
+    await Share.share({
+      message: `Olá pessoal!\nEsse é o convite para participar da reunião de planejamento.\n\nCódigo: ${meet?.id}`,
+      title: 'Convite para participar',
+    });
+  }, [meet]);
+
+  const handleNextHistory = useCallback(async () => {
+    const historyNowIndex = histories.findIndex(
+      (historyNowFind) => historyNowFind.id === meet?.historyNowId,
+    );
+
+    if (
+      historyNowIndex !== undefined &&
+      historyNowIndex < histories.length - 1
+    ) {
+      await changeHistoryNow(histories[historyNowIndex + 1].id);
+    }
+  }, [changeHistoryNow, histories, meet]);
+
+  const handlePlayPause = useCallback(async () => {
+    if (meet?.status === 'paused') {
+      await changeMeetStatus('started');
+    } else if (meet?.status === 'started') {
+      await changeMeetStatus('paused');
+    }
+  }, [changeMeetStatus, meet]);
+
+  const roundNowList = useMemo<RoundNowItemProps[]>(() => {
+    const resp: RoundNowItemProps[] = [];
+
+    meet?.participants?.forEach((participant) => {
+      const vote = meet?.historyNow?.votes?.find(
+        (voteNow) => voteNow.participantId === participant.id,
+      )?.number;
+
+      resp.push({
+        id: participant.id,
+        name: participant.name,
+        vote: vote ? `${vote}` : '?',
+      });
+    });
+
+    return resp;
+  }, [meet]);
+
+  const historyNumbersList = useMemo<HistoryNumberItemProps[]>(() => {
+    const resp: HistoryNumberItemProps[] = [];
+
+    meet?.histories.forEach((history) => {
+      const vote = selectHistoryVoteByHistories(history.votes);
+
+      if (vote !== '?') {
+        resp.push({
+          id: history.id,
+          name: history.name,
+          category: history.category,
+          vote,
+        });
+      }
+    });
+
+    return resp;
+  }, [meet, selectHistoryVoteByHistories]);
 
   return (
     <Container contentContainerStyle={{ paddingBottom: 100 }}>
@@ -82,12 +166,12 @@ const Admin: React.FC = () => {
           </SharedViewCodeText>
         </SharedViewCode>
         <CardFooter>
-          <ButtonAlternative text="Compartilhar" />
+          <ButtonAlternative text="Compartilhar" onPress={handleShare} />
           <Space />
-          <ButtonAlternative text="Copiar" />
+          <ButtonAlternative text="Copiar" onPress={handleCopy} />
         </CardFooter>
       </Card>
-      {!!meet?.histories?.length && (
+      {!!historyNumbersList.length && (
         <Card>
           <CardTitle>Pontuação por História</CardTitle>
           <CardTable>
@@ -103,7 +187,7 @@ const Admin: React.FC = () => {
               </CardTableColumn>
             </CardTableHeader>
             <CardTableSection>
-              {meet?.histories.map((history) => (
+              {historyNumbersList.map((history) => (
                 <CardTableLine key={history.id}>
                   <CardTableColumn flex={2}>
                     <CardTableSectionName>
@@ -118,7 +202,7 @@ const Admin: React.FC = () => {
                   <CardTableColumn flex={1}>
                     <CardTableSectionScore>
                       <CardTableSectionScoreText>
-                        {handleSelectHistoryVoteByHistories(history.votes)}
+                        {history.vote}
                       </CardTableSectionScoreText>
                     </CardTableSectionScore>
                   </CardTableColumn>
@@ -133,7 +217,10 @@ const Admin: React.FC = () => {
       )}
       {!!meet?.participants?.length && (
         <Card>
-          <CardTitle>Rodada atual</CardTitle>
+          <CardTitle>
+            Rodada atual{' '}
+            {meet?.historyNow?.name ? ` - ${meet?.historyNow?.name}` : ''}
+          </CardTitle>
           <CardTable>
             <CardTableHeader>
               <CardTableColumn flex={3}>
@@ -144,45 +231,43 @@ const Admin: React.FC = () => {
               </CardTableColumn>
             </CardTableHeader>
             <CardTableSection>
-              <CardTableLine>
-                <CardTableColumn flex={3}>
-                  <CardTableSectionText>Anderson</CardTableSectionText>
-                </CardTableColumn>
-                <CardTableColumn flex={1}>
-                  <CardTableSectionScore>
-                    <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                  </CardTableSectionScore>
-                </CardTableColumn>
-              </CardTableLine>
-              <CardTableLine>
-                <CardTableColumn flex={3}>
-                  <CardTableSectionText>Lucas</CardTableSectionText>
-                </CardTableColumn>
-                <CardTableColumn flex={1}>
-                  <CardTableSectionScore>
-                    <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                  </CardTableSectionScore>
-                </CardTableColumn>
-              </CardTableLine>
-              <CardTableLine>
-                <CardTableColumn flex={3}>
-                  <CardTableSectionText>João Paulo</CardTableSectionText>
-                </CardTableColumn>
-                <CardTableColumn flex={1}>
-                  <CardTableSectionScore>
-                    <CardTableSectionScoreText>5</CardTableSectionScoreText>
-                  </CardTableSectionScore>
-                </CardTableColumn>
-              </CardTableLine>
+              {roundNowList.map((round) => (
+                <CardTableLine key={round.id}>
+                  <CardTableColumn flex={3}>
+                    <CardTableSectionText>{round.name}</CardTableSectionText>
+                  </CardTableColumn>
+                  <CardTableColumn flex={1}>
+                    <CardTableSectionScore>
+                      <CardTableSectionScoreText>
+                        {round.vote}
+                      </CardTableSectionScoreText>
+                    </CardTableSectionScore>
+                  </CardTableColumn>
+                </CardTableLine>
+              ))}
             </CardTableSection>
             <CardFooter>
-              <ButtonAlternative>
+              <ButtonAlternative
+                enabled={
+                  meet.histories[meet.histories.length - 1].id !==
+                  meet.historyNowId
+                }
+                onPress={handleNextHistory}
+              >
                 <AntDesign name="stepforward" size={24} color="white" />
               </ButtonAlternative>
               <Space />
-              <ButtonAlternative>
-                {/* <Entypo name="controller-stop" size={24} color="white" /> */}
-                <AntDesign name="caretright" size={24} color="white" />
+
+              <ButtonAlternative
+                enabled={!!meet?.historyNow && meet?.historyNowId >= 0}
+                onPress={handlePlayPause}
+              >
+                {meet.status === 'started' && (
+                  <Entypo name="controller-stop" size={24} color="white" />
+                )}
+                {meet.status === 'paused' && (
+                  <AntDesign name="caretright" size={24} color="white" />
+                )}
               </ButtonAlternative>
             </CardFooter>
           </CardTable>
@@ -200,7 +285,7 @@ const Admin: React.FC = () => {
           </CardTableHeader>
           <CardTableSection>
             {meet?.histories?.map((history) => (
-              <CardTableLine key={`${history.category}-${history.name}`}>
+              <CardTableLine key={history.id}>
                 <CardTableColumn flex={2}>
                   <CardTableSectionName>
                     <CardTableSectionText>{history.name}</CardTableSectionText>

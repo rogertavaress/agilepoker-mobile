@@ -87,6 +87,8 @@ const Presentation: React.FC = () => {
             navigate('Term');
           });
         } else if (type === 'run') {
+          console.log('oi');
+          console.log({ name, cod: cod ?? 'WITHOUT-COD' });
           runMeet({ name, cod: cod ?? 'WITHOUT-COD' }).then(() => {
             navigate('Term');
           });

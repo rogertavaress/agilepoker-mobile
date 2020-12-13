@@ -21,8 +21,9 @@ const HistoryCreate: React.FC = () => {
   const { createHistory } = useMeet();
 
   const create = useCallback(() => {
-    createHistory({ name, category });
-    goBack();
+    createHistory({ name, category }).then(() => {
+      goBack();
+    });
   }, [category, createHistory, goBack, name]);
 
   const canAdd = useMemo(() => !!name.length && !!category.length, [

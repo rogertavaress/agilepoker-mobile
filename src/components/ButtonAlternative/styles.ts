@@ -10,7 +10,7 @@ export const Container = styled(RectButton)`
   padding: 10px 20px;
 
   ${({ enabled }) =>
-    enabled &&
+    !enabled &&
     css`
       opacity: 0.6;
     `}
