@@ -1,5 +1,10 @@
-import { AxiosError } from 'axios';
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Alert } from 'react-native';
 import CreateHistoryDTO from '../DTOs/CreateHistoryDTO';
 import { CreateMeetDTO } from '../DTOs/CreateMeetDTO';
@@ -7,6 +12,7 @@ import { RunMeetDTO } from '../DTOs/RunMeetDTO';
 import Meet from '../entities/Meet';
 import Participant from '../entities/Participant';
 import api from '../services/api';
+import { useSocket } from './socket';
 
 interface MeetContextData {
   term: boolean;
@@ -26,6 +32,7 @@ interface MeetContextData {
 const MeetContext = createContext<MeetContextData>({} as MeetContextData);
 
 export const MeetProvider: React.FC = ({ children }) => {
+  const { socket } = useSocket();
   const [type, setType] = useState<'participant' | 'admin'>();
   const [term, setTerm] = useState(false);
   const [meet, setMeet] = useState<Meet>();
@@ -41,6 +48,8 @@ export const MeetProvider: React.FC = ({ children }) => {
           statusMeet: 'paused',
         });
 
+        socket.emit('sync-request', data);
+
         setTerm(true);
         setMeet({
           ...data,
@@ -49,7 +58,7 @@ export const MeetProvider: React.FC = ({ children }) => {
         Alert.alert('Erro', err.response.data.message);
       }
     }
-  }, [meet, type]);
+  }, [meet, socket, type]);
 
   const createHistory = useCallback(
     async ({ name, category }: CreateHistoryDTO) => {
@@ -60,51 +69,63 @@ export const MeetProvider: React.FC = ({ children }) => {
           category,
         });
 
+        socket.emit('sync-request', data);
+
         setMeet({ ...data });
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
     },
-    [meet],
+    [meet, socket],
   );
 
-  const createMeet = useCallback(async ({ name, email }: CreateMeetDTO) => {
-    try {
-      const { data } = await api.post('/meets', {
-        name,
-        email,
-      });
+  const createMeet = useCallback(
+    async ({ name, email }: CreateMeetDTO) => {
+      try {
+        const { data } = await api.post('/meets', {
+          name,
+          email,
+        });
 
-      setMeet({
-        ...data,
-      });
+        setMeet({
+          ...data,
+        });
 
-      setType('admin');
-    } catch (err: any) {
-      Alert.alert('Erro', err.response.data.message);
-    }
-  }, []);
+        socket.emit('join-meet', data);
 
-  const runMeet = useCallback(async ({ name, cod }: RunMeetDTO) => {
-    try {
-      const { data } = await api.post('/participants', {
-        idMeet: cod,
-        name,
-      });
+        setType('admin');
+      } catch (err: any) {
+        Alert.alert('Erro', err.response.data.message);
+      }
+    },
+    [socket],
+  );
 
-      setMeet({
-        ...data.meet,
-      });
+  const runMeet = useCallback(
+    async ({ name, cod }: RunMeetDTO) => {
+      try {
+        const { data } = await api.post('/participants', {
+          idMeet: cod,
+          name,
+        });
 
-      setParticipant({
-        ...data.participant,
-      });
+        socket.emit('join-meet', data.meet);
 
-      setType('participant');
-    } catch (err: any) {
-      Alert.alert('Erro', err.response.data.message);
-    }
-  }, []);
+        setMeet({
+          ...data.meet,
+        });
+
+        setParticipant({
+          ...data.participant,
+        });
+
+        setType('participant');
+      } catch (err: any) {
+        Alert.alert('Erro', err.response.data.message);
+      }
+    },
+    [socket],
+  );
 
   const changeHistoryNow = useCallback(
     async (idHistory: number) => {
@@ -114,12 +135,14 @@ export const MeetProvider: React.FC = ({ children }) => {
           idHistoryNow: idHistory,
         });
 
+        socket.emit('sync-request', data);
+
         setMeet({ ...data });
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
     },
-    [meet],
+    [meet, socket],
   );
 
   const changeMeetStatus = useCallback(
@@ -130,13 +153,22 @@ export const MeetProvider: React.FC = ({ children }) => {
           statusMeet,
         });
 
+        socket.emit('sync-request', data);
+
         setMeet({ ...data });
       } catch (err: any) {
         Alert.alert('Erro', err.response.data.message);
       }
     },
-    [meet],
+    [meet, socket],
   );
+
+  useEffect(() => {
+    socket.on('sync', (data: any) => {
+      console.log('Atualizando');
+      setMeet({ ...data });
+    });
+  }, [socket]);
 
   return (
     <MeetContext.Provider

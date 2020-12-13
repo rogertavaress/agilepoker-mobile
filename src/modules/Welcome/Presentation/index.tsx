@@ -48,7 +48,6 @@ const Presentation: React.FC = () => {
       duration: 500,
       useNativeDriver: true,
     }).start(() => {
-      setSelected('main');
       Animated.timing(cardMovimentation, {
         toValue: 0,
         duration: 500,
@@ -87,8 +86,6 @@ const Presentation: React.FC = () => {
             navigate('Term');
           });
         } else if (type === 'run') {
-          console.log('oi');
-          console.log({ name, cod: cod ?? 'WITHOUT-COD' });
           runMeet({ name, cod: cod ?? 'WITHOUT-COD' }).then(() => {
             navigate('Term');
           });

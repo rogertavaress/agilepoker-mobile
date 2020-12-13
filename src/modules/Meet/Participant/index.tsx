@@ -37,7 +37,9 @@ const Participant: React.FC = () => {
   const { participant, meet } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
 
-  const canVote = useMemo(() => meet?.status === 'started', [meet]);
+  const canVote = useMemo(() => {
+    return meet?.status === 'started' && meet.historyNowId >= 0;
+  }, [meet]);
 
   const histories = useMemo<History[]>(
     () => meet?.histories?.sort((a, b) => a.id - b.id) ?? [],
@@ -48,7 +50,7 @@ const Participant: React.FC = () => {
     const resp: MyHistoryVoteItemProps[] = [];
 
     histories.forEach((history) => {
-      const vote = history.votes.find(
+      const vote = history.votes?.find(
         (voteHistory) => voteHistory.participantId === participant?.id,
       );
 
