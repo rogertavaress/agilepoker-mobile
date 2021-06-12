@@ -5,7 +5,9 @@ import Vote from './Vote';
 interface Participant {
   id: string;
   name: string;
-  meetId: string;
+  meet_id: string;
+  longitude?: number;
+  latitude?: number;
   meet: Meet;
   votes: Vote[];
   created_at: Date;

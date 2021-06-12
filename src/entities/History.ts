@@ -3,11 +3,13 @@ import Vote from './Vote';
 
 /* eslint-disable camelcase */
 interface History {
-  id: number;
+  id: string;
   name: string;
   category: string;
+  time: number;
+  time_parsed: string;
   votes: Vote[];
-  meetId: string;
+  meet_id: string;
   meet: Meet;
   created_at: Date;
   updated_at: Date;

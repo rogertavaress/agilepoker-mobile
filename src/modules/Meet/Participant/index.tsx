@@ -27,7 +27,7 @@ import ScoreCard from '../../../components/ScoreCard';
 import History from '../../../entities/History';
 
 interface MyHistoryVoteItemProps {
-  id: number;
+  id: string;
   name: string;
   category: string;
   vote: string;
@@ -36,14 +36,19 @@ interface MyHistoryVoteItemProps {
 const Participant: React.FC = () => {
   const { participant, meet, sendVote } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
-  const [historyNowId, setHistoryNowId] = useState<number>();
+  const [historyNowId, setHistoryNowId] = useState<string>();
 
   const canVote = useMemo(() => {
-    return meet?.status === 'started' && meet.historyNowId >= 0;
+    return meet?.status === 'played' && !!meet.history_now_id;
   }, [meet]);
 
   const histories = useMemo<History[]>(
-    () => meet?.histories?.sort((a, b) => a.id - b.id) ?? [],
+    () =>
+      meet?.histories?.sort(
+        (a, b) =>
+          new Date(b.created_at).getMilliseconds() -
+          new Date(a.created_at).getMilliseconds(),
+      ) ?? [],
     [meet],
   );
 
@@ -52,7 +57,7 @@ const Participant: React.FC = () => {
 
     histories.forEach((history) => {
       const vote = history.votes?.find(
-        (voteHistory) => voteHistory.participantId === participant?.id,
+        (voteHistory) => voteHistory.participant_id === participant?.id,
       );
 
       if (vote) {
@@ -69,8 +74,8 @@ const Participant: React.FC = () => {
   }, [histories, participant]);
 
   useEffect(() => {
-    if (historyNowId !== meet?.historyNowId) {
-      setHistoryNowId(meet?.historyNowId);
+    if (historyNowId !== meet?.history_now_id) {
+      setHistoryNowId(meet?.history_now_id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meet]);
@@ -141,7 +146,8 @@ const Participant: React.FC = () => {
       )}
       <Card>
         <CardTitle>
-          Cartas {meet?.historyNow?.name ? ` - ${meet?.historyNow?.name}` : ''}
+          Cartas{' '}
+          {meet?.history_now?.name ? ` - ${meet?.history_now?.name}` : ''}
         </CardTitle>
         <ScoreCardsArea>
           <ScoreCardLine>

@@ -5,9 +5,9 @@ import Participant from './Participant';
 interface Vote {
   id: string;
   number: number;
-  historyId: string;
+  history_id: string;
   history: History;
-  participantId: string;
+  participant_id: string;
   participant: Participant;
   created_at: Date;
   updated_at: Date;

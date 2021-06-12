@@ -22,11 +22,11 @@ interface MeetContextData {
   type?: 'participant' | 'admin';
   confirmTerms: (callback?: () => Promise<void>) => Promise<void>;
   changeHistoryNow: (
-    idHistory: number,
+    historyId: string,
     callback?: () => Promise<void>,
   ) => Promise<void>;
   changeMeetStatus: (
-    status: 'awaiting_sign' | 'started' | 'paused' | 'finished',
+    status: 'awaiting_sign' | 'started' | 'played' | 'paused' | 'finished',
     callback?: () => Promise<void>,
   ) => Promise<void>;
   createHistory: (
@@ -68,8 +68,8 @@ export const MeetProvider: React.FC = ({ children }) => {
       } else {
         try {
           const { data } = await api.patch('/meets/status', {
-            idMeet: meet?.id,
-            statusMeet: 'paused',
+            meet_id: meet?.id,
+            status_meet: 'started',
           });
 
           socket.emit('sync-request', data);
@@ -97,7 +97,7 @@ export const MeetProvider: React.FC = ({ children }) => {
     ) => {
       try {
         const { data } = await api.post('/histories', {
-          meetId: meet?.id,
+          meet_id: meet?.id,
           name,
           category,
         });
@@ -157,7 +157,7 @@ export const MeetProvider: React.FC = ({ children }) => {
     ) => {
       try {
         const { data } = await api.post('/participants', {
-          idMeet: cod,
+          meet_id: cod,
           name,
         });
 
@@ -187,11 +187,11 @@ export const MeetProvider: React.FC = ({ children }) => {
   );
 
   const changeHistoryNow = useCallback(
-    async (idHistory: number, callback?: () => Promise<void>) => {
+    async (historyId: string, callback?: () => Promise<void>) => {
       try {
         const { data } = await api.patch('/meets/historyNow', {
-          idMeet: meet?.id,
-          idHistoryNow: idHistory,
+          meet_id: meet?.id,
+          history_now_id: historyId,
         });
 
         socket.emit('sync-request', data);
@@ -210,13 +210,18 @@ export const MeetProvider: React.FC = ({ children }) => {
 
   const changeMeetStatus = useCallback(
     async (
-      statusMeet: 'awaiting_sign' | 'started' | 'paused' | 'finished',
+      statusMeet:
+        | 'awaiting_sign'
+        | 'started'
+        | 'played'
+        | 'paused'
+        | 'finished',
       callback?: () => Promise<void>,
     ) => {
       try {
         const { data } = await api.patch('/meets/status', {
-          idMeet: meet?.id,
-          statusMeet,
+          meet_id: meet?.id,
+          status_meet: statusMeet,
         });
 
         socket.emit('sync-request', data);
@@ -238,9 +243,9 @@ export const MeetProvider: React.FC = ({ children }) => {
       try {
         const { data } = await api.post('/votes', {
           ...sendVoteDTO,
-          participantId: participant?.id,
-          historyId: meet?.historyNowId,
-          meetId: meet?.id,
+          participant_id: participant?.id,
+          history_id: meet?.history_now_id,
+          meet_id: meet?.id,
         });
 
         socket.emit('sync-request', data);

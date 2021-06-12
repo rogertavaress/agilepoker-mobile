@@ -43,7 +43,7 @@ interface RoundNowItemProps {
   vote: string;
 }
 interface HistoryNumberItemProps {
-  id: number;
+  id: string;
   name: string;
   category: string;
   vote: string;
@@ -54,7 +54,12 @@ const Admin: React.FC = () => {
   const { navigate } = useNavigation();
 
   const histories = useMemo<History[]>(
-    () => meet?.histories?.sort((a, b) => a.id - b.id) ?? [],
+    () =>
+      meet?.histories?.sort(
+        (a, b) =>
+          new Date(b.created_at).getMilliseconds() -
+          new Date(a.created_at).getMilliseconds(),
+      ) ?? [],
     [meet],
   );
 
@@ -94,7 +99,7 @@ const Admin: React.FC = () => {
 
   const handleNextHistory = useCallback(async () => {
     const historyNowIndex = histories.findIndex(
-      (historyNowFind) => historyNowFind.id === meet?.historyNowId,
+      (historyNowFind) => historyNowFind.id === meet?.history_now_id,
     );
 
     if (
@@ -105,10 +110,20 @@ const Admin: React.FC = () => {
     }
   }, [changeHistoryNow, histories, meet]);
 
+  const handleBackHistory = useCallback(async () => {
+    const historyNowIndex = histories.findIndex(
+      (historyNowFind) => historyNowFind.id === meet?.history_now_id,
+    );
+
+    if (historyNowIndex !== undefined && historyNowIndex > 0) {
+      await changeHistoryNow(histories[historyNowIndex - 1].id);
+    }
+  }, [changeHistoryNow, histories, meet]);
+
   const handlePlayPause = useCallback(async () => {
-    if (meet?.status === 'paused') {
-      await changeMeetStatus('started');
-    } else if (meet?.status === 'started') {
+    if (meet?.status === 'paused' || meet?.status === 'started') {
+      await changeMeetStatus('played');
+    } else if (meet?.status === 'played') {
       await changeMeetStatus('paused');
     }
   }, [changeMeetStatus, meet]);
@@ -117,8 +132,8 @@ const Admin: React.FC = () => {
     const resp: RoundNowItemProps[] = [];
 
     meet?.participants?.forEach((participant) => {
-      const vote = meet?.historyNow?.votes?.find(
-        (voteNow) => voteNow.participantId === participant.id,
+      const vote = meet?.history_now?.votes?.find(
+        (voteNow) => voteNow.participant_id === participant.id,
       )?.number;
 
       resp.push({
@@ -219,7 +234,7 @@ const Admin: React.FC = () => {
         <Card>
           <CardTitle>
             Rodada atual{' '}
-            {meet?.historyNow?.name ? ` - ${meet?.historyNow?.name}` : ''}
+            {meet?.history_now?.name ? ` - ${meet?.history_now?.name}` : ''}
           </CardTitle>
           <CardTable>
             <CardTableHeader>
@@ -249,8 +264,20 @@ const Admin: React.FC = () => {
             <CardFooter>
               <ButtonAlternative
                 enabled={
+                  meet.histories[0].id !== meet.history_now_id &&
+                  (meet.status === 'started' || meet.status === 'paused')
+                }
+                onPress={handleBackHistory}
+              >
+                <AntDesign name="stepbackward" size={24} color="white" />
+              </ButtonAlternative>
+              <Space />
+
+              <ButtonAlternative
+                enabled={
                   meet.histories[meet.histories.length - 1].id !==
-                    meet.historyNowId && meet.status === 'paused'
+                    meet.history_now_id &&
+                  (meet.status === 'started' || meet.status === 'paused')
                 }
                 onPress={handleNextHistory}
               >
@@ -259,13 +286,13 @@ const Admin: React.FC = () => {
               <Space />
 
               <ButtonAlternative
-                enabled={!!meet?.historyNow && meet?.historyNowId >= 0}
+                enabled={!!meet?.history_now && !!meet?.history_now_id}
                 onPress={handlePlayPause}
               >
                 {meet.status === 'played' && (
                   <Entypo name="controller-stop" size={24} color="white" />
                 )}
-                {meet.status === 'paused' && (
+                {(meet.status === 'paused' || meet.status === 'started') && (
                   <AntDesign name="caretright" size={24} color="white" />
                 )}
               </ButtonAlternative>
@@ -282,16 +309,28 @@ const Admin: React.FC = () => {
                 <CardTableHeaderTitle>Nome</CardTableHeaderTitle>
               )}
             </CardTableColumn>
+            <CardTableColumn flex={1}>
+              {!!meet?.histories?.length && (
+                <CardTableHeaderTitle>Tempo gasto</CardTableHeaderTitle>
+              )}
+            </CardTableColumn>
           </CardTableHeader>
           <CardTableSection>
             {meet?.histories?.map((history) => (
               <CardTableLine key={history.id}>
-                <CardTableColumn flex={2}>
+                <CardTableColumn flex={1}>
                   <CardTableSectionName>
                     <CardTableSectionText>{history.name}</CardTableSectionText>
                     <CardTableSectionDescription>
                       {history.category}
                     </CardTableSectionDescription>
+                  </CardTableSectionName>
+                </CardTableColumn>
+                <CardTableColumn flex={1}>
+                  <CardTableSectionName>
+                    <CardTableSectionText>
+                      {history.time_parsed}
+                    </CardTableSectionText>
                   </CardTableSectionName>
                 </CardTableColumn>
               </CardTableLine>
