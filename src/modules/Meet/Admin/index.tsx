@@ -262,7 +262,7 @@ const Admin: React.FC = () => {
                 enabled={!!meet?.historyNow && meet?.historyNowId >= 0}
                 onPress={handlePlayPause}
               >
-                {meet.status === 'started' && (
+                {meet.status === 'played' && (
                   <Entypo name="controller-stop" size={24} color="white" />
                 )}
                 {meet.status === 'paused' && (

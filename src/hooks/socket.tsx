@@ -8,7 +8,7 @@ interface SocketContextData {
 const SocketContext = createContext<SocketContextData>({} as SocketContextData);
 
 export const SocketProvider: React.FC = ({ children }) => {
-  const socket = useMemo(() => io('http://192.168.25.219:3333'), []);
+  const socket = useMemo(() => io('https://agilepoker-api.herokuapp.com'), []);
 
   return (
     <SocketContext.Provider
