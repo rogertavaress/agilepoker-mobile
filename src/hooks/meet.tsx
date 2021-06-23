@@ -10,6 +10,7 @@ import CreateHistoryDTO from '../DTOs/CreateHistoryDTO';
 import { CreateMeetDTO } from '../DTOs/CreateMeetDTO';
 import { RunMeetDTO } from '../DTOs/RunMeetDTO';
 import SendVoteDTO from '../DTOs/SendVoteDTO';
+import UpdateLocationParticipantDTO from '../DTOs/UpdateLocationParticipantDTO';
 import Meet from '../entities/Meet';
 import Participant from '../entities/Participant';
 import api from '../services/api';
@@ -46,6 +47,9 @@ interface MeetContextData {
   sendVote: (
     data: SendVoteDTO,
     callback?: () => Promise<void>,
+  ) => Promise<void>;
+  updateLocationParticipant: (
+    updateLocationParticipantDTO: UpdateLocationParticipantDTO,
   ) => Promise<void>;
 }
 
@@ -262,6 +266,20 @@ export const MeetProvider: React.FC = ({ children }) => {
     [meet, participant, socket],
   );
 
+  const updateLocationParticipant = useCallback(
+    async (updateLocationParticipantDTO: UpdateLocationParticipantDTO) => {
+      try {
+        await api.patch('/participants/location', {
+          ...updateLocationParticipantDTO,
+          participant_id: participant?.id,
+        });
+      } catch (err: any) {
+        Alert.alert('Erro', err.response.data.message);
+      }
+    },
+    [participant],
+  );
+
   useEffect(() => {
     socket.on('sync', (data: any) => {
       setMeet({ ...data });
@@ -282,6 +300,7 @@ export const MeetProvider: React.FC = ({ children }) => {
         createMeet,
         runMeet,
         sendVote,
+        updateLocationParticipant,
       }}
     >
       {children}
