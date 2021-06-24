@@ -1,4 +1,4 @@
-package com.agilepoker.generated;
+package dev.rogeriotavares.agilepoker.generated;
 
 import java.util.Arrays;
 import java.util.List;

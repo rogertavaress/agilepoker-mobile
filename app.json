@@ -1,9 +1,9 @@
 {
-  "name": "agilepoker",
-  "displayName": "agilepoker",
+  "name": "AgilePoker",
+  "displayName": "Agile Poker",
   "expo": {
-    "name": "agilepoker",
-    "slug": "agilepoker",
+    "name": "AgilePoker",
+    "slug": "AgilePoker",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"

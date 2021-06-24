@@ -1,4 +1,4 @@
-package com.agilepoker;
+package dev.rogeriotavares.agilepoker;
 
 import android.os.Bundle;
 
