@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'react-native';
 
+import { useNavigation } from '@react-navigation/native';
 import {
   Container,
   HeaderView,
@@ -34,6 +35,7 @@ interface MyHistoryVoteItemProps {
 }
 
 const Participant: React.FC = () => {
+  const { navigate } = useNavigation();
   const { participant, meet, sendVote } = useMeet();
   const [cardSelected, setCardSelected] = useState<number>();
   const [historyNowId, setHistoryNowId] = useState<string>();
@@ -83,6 +85,11 @@ const Participant: React.FC = () => {
   useEffect(() => {
     setCardSelected(undefined);
   }, [historyNowId]);
+
+  useEffect(() => {
+    navigate('Location');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const selectCard = useCallback(
     async (value: number) => {

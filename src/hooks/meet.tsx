@@ -136,7 +136,7 @@ export const MeetProvider: React.FC = ({ children }) => {
           ...data,
         });
 
-        socket.emit('join-meet', data);
+        socket.emit('join-meet-request', data);
 
         setType('admin');
 
@@ -165,7 +165,7 @@ export const MeetProvider: React.FC = ({ children }) => {
           name,
         });
 
-        socket.emit('join-meet', data.meet);
+        socket.emit('join-meet-request', data.meet);
 
         setMeet({
           ...data.meet,
@@ -282,6 +282,9 @@ export const MeetProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     socket.on('sync', (data: any) => {
+      setMeet({ ...data });
+    });
+    socket.on('join-meet', (data: any) => {
       setMeet({ ...data });
     });
   }, [socket]);

@@ -25,7 +25,9 @@ const Location: React.FC = () => {
     const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
 
     if (status === 'granted') {
-      const location = await ExpoLocation.getCurrentPositionAsync({});
+      const location = await ExpoLocation.getCurrentPositionAsync({
+        accuracy: ExpoLocation.Accuracy.High,
+      });
 
       updateLocationParticipant({
         altitude: location.coords.altitude ?? 0,

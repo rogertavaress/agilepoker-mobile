@@ -106,7 +106,7 @@ const Admin: React.FC = () => {
       historyNowIndex !== undefined &&
       historyNowIndex < histories.length - 1
     ) {
-      await changeHistoryNow(histories[historyNowIndex + 1].id);
+      await changeHistoryNow(histories[historyNowIndex + 1]?.id);
     }
   }, [changeHistoryNow, histories, meet]);
 
@@ -116,7 +116,7 @@ const Admin: React.FC = () => {
     );
 
     if (historyNowIndex !== undefined && historyNowIndex > 0) {
-      await changeHistoryNow(histories[historyNowIndex - 1].id);
+      await changeHistoryNow(histories[historyNowIndex - 1]?.id);
     }
   }, [changeHistoryNow, histories, meet]);
 
@@ -264,7 +264,9 @@ const Admin: React.FC = () => {
             <CardFooter>
               <ButtonAlternative
                 enabled={
-                  meet.histories[0].id !== meet.history_now_id &&
+                  !!meet.history_now_id &&
+                  meet.histories?.length > 0 &&
+                  meet.histories[0]?.id !== meet.history_now_id &&
                   (meet.status === 'started' || meet.status === 'paused')
                 }
                 onPress={handleBackHistory}
@@ -275,7 +277,8 @@ const Admin: React.FC = () => {
 
               <ButtonAlternative
                 enabled={
-                  meet.histories[meet.histories.length - 1].id !==
+                  meet.histories?.length > 0 &&
+                  meet.histories[meet.histories.length - 1]?.id !==
                     meet.history_now_id &&
                   (meet.status === 'started' || meet.status === 'paused')
                 }
